@@ -29,6 +29,10 @@ public class FemaleToken {
         this.name = name;
     }
 
+    public FemaleToken(String name) {
+        this.name = name;
+    }
+
     public FemaleToken() {
     }
 

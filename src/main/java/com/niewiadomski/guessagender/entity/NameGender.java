@@ -23,6 +23,10 @@ public class NameGender implements Serializable {
         return Gender.FEMALE.equals(this.getGenderType());
     }
 
+    public boolean isInconclusive() {
+        return Gender.NULL.equals(this.getGenderType());
+    }
+
     public String getName() {
         return name;
     }
@@ -41,7 +45,7 @@ public class NameGender implements Serializable {
 
     public Gender getGenderType() {
         if (this.gender == null) {
-            return Gender.INCONCLUSIVE;
+            return Gender.NULL;
         }
         return Gender.valueOf(this.gender.toUpperCase());
     }

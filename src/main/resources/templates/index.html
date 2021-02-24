@@ -18,12 +18,12 @@
 
         <div>
             <label>Please write the name:</label>
-            <input type="text" id="username" name="username">
+            <input type="text" th:id="givenName" th:name="givenName">
         </div>
 
         <div>
         Opcje:
-        <select id="checkingMethod" name="checkingMethod">
+        <select id="checkingMethod" th:name="checkingMethod">
             <option value="method1" selected="selected">First option</option>
             <option value="method2">Second option</option>
         </select>

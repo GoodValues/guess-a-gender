@@ -24,6 +24,10 @@ public class MaleToken {
     @JoinColumn(name ="complex_token_id")
     private ComplexToken complexToken;
 
+    public MaleToken(String name) {
+        this.name = name;
+    }
+
     public MaleToken(Long id, String name) {
         this.id = id;
         this.name = name;
