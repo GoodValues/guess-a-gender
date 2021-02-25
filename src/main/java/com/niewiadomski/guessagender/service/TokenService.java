@@ -6,6 +6,8 @@ import com.niewiadomski.guessagender.entity.FemaleToken;
 import com.niewiadomski.guessagender.entity.MaleToken;
 import com.niewiadomski.guessagender.entity.NameGender;
 import com.niewiadomski.guessagender.mapper.ComplexTokenMapper;
+import com.niewiadomski.guessagender.repository.FemaleTokenRepository;
+import com.niewiadomski.guessagender.repository.MaleTokenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +20,18 @@ import java.util.List;
 public class TokenService {
 
     GenderizeService genderizeService;
+    MaleTokenRepository maleTokenRepository;
+    FemaleTokenRepository femaleTokenRepository;
+
     Logger logger = LoggerFactory.getLogger(TokenService.class);
 
     @Autowired
-    public TokenService(GenderizeService genderizeService) {
+    public TokenService(GenderizeService genderizeService, MaleTokenRepository maleTokenRepository, FemaleTokenRepository femaleTokenRepository) {
         this.genderizeService = genderizeService;
+        this.maleTokenRepository = maleTokenRepository;
+        this.femaleTokenRepository = femaleTokenRepository;
     }
+
 
     public ComplexTokenDTO getComplexTokenFirstOptionChecked(String givenName) {
         String[] names = givenName.split(" ");
@@ -37,21 +45,21 @@ public class TokenService {
         for (String name:names) {
             NameGender gender = genderizeService.getGender(name);
             if(gender.isMale()) {
-                MaleToken maleToken = new MaleToken();
-                maleToken.setName(gender.getName());
+                MaleToken maleToken = new MaleToken(gender.getName());
+                maleTokenRepository.save(maleToken);
                 maleTokens.add(maleToken);
             }
             if(gender.isFemale()) {
-                FemaleToken femaleToken = new FemaleToken();
-                femaleToken.setName(gender.getName());
+                FemaleToken femaleToken = new FemaleToken(gender.getName());
+                femaleTokenRepository.save(femaleToken);
                 femaleTokens.add(femaleToken);
             }
         }
 
         ComplexToken complexToken = new ComplexToken(maleTokens, femaleTokens);
-
         return ComplexTokenMapper.INSTANCE.complexTokenToDTO(complexToken);
     }
+
 
 
     public ComplexTokenDTO getComplexTokenSecondOptionChecked(String givenName) {
@@ -70,14 +78,21 @@ public class TokenService {
             }
             if(gender.isMale()) {
                 MaleToken maleToken = new MaleToken(gender.getName());
+                maleTokenRepository.save(maleToken);
                 maleTokens.add(maleToken);
             }
             if(gender.isFemale()) {
                 FemaleToken femaleToken = new FemaleToken(gender.getName());
+                femaleTokenRepository.save(femaleToken);
                 femaleTokens.add(femaleToken);
             }
         }
 
+        return checkConditionsForSecondOption(maleTokens, femaleTokens, isInconclusive);
+    }
+
+
+    private ComplexTokenDTO checkConditionsForSecondOption(List<MaleToken> maleTokens, List<FemaleToken> femaleTokens, boolean isInconclusive) {
         ComplexToken complexToken = new ComplexToken(maleTokens, femaleTokens);
 
         if(isInconclusive) {
@@ -98,9 +113,6 @@ public class TokenService {
             logger.info("Gender for given name is INCONCLUSIVE");
             return ComplexTokenMapper.INSTANCE.complexTokenToDTO(complexToken);
         }
-
-
     }
-
 
 }
