@@ -1,0 +1,15 @@
+Guess Gender App!
+
+The application is builded on Spring Boot framework. The main functionality is to specify type of gender by given name(s) and return all male and female tokens. It uses an external api (https://genderize.io/) to download object, that is mapped in application by NameGender.class.
+
+Main functionalities:
+1) 2 APIs: 
+	  - first one to input initial data, like name(s) and the option of calculating algorithm (there are 2 options to choose)
+	  - second one returns complex token, which contains male and female tokens.
+
+2) After executing the whole algorithm, final gender is displayed in console through logger, according to the logic from the command.
+
+3) Male and female tokens are saved to the database - MySQL.
+
+
+The app should meet requirements for the command to the task. It is easily runnable through docker and well tested (JUnit 4). 
