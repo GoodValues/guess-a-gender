@@ -33,17 +33,22 @@ public class TokenService {
     }
 
 
+    public TokenService() {
+    }
+
+
     public ComplexTokenDTO getComplexTokenFirstOptionChecked(String givenName) {
         String[] names = givenName.split(" ");
         String firstName = names[0];
         NameGender nameGender = genderizeService.getGender(firstName);
-        logger.info("Gender for name " + nameGender.getName() + " is " + nameGender.getGender());
+        logGender(nameGender);
 
         List<MaleToken> maleTokens = new ArrayList<>();
         List<FemaleToken> femaleTokens = new ArrayList<>();
 
-        for (String name:names) {
-            NameGender gender = genderizeService.getGender(name);
+        List<NameGender> genders = genderizeService.getGenders(names);
+
+        for (NameGender gender:genders) {
             if(gender.isMale()) {
                 MaleToken maleToken = new MaleToken(gender.getName());
                 maleTokenRepository.save(maleToken);
@@ -60,6 +65,12 @@ public class TokenService {
         return ComplexTokenMapper.INSTANCE.complexTokenToDTO(complexToken);
     }
 
+    private void logGender(NameGender nameGender) {
+        if(nameGender.getName().isEmpty())
+        logger.info("Gender for given name is INCONCLUSIVE");
+        else logger.info("Gender for name " + nameGender.getName() + " is " + nameGender.getGender());
+    }
+
 
 
     public ComplexTokenDTO getComplexTokenSecondOptionChecked(String givenName) {
@@ -67,11 +78,11 @@ public class TokenService {
 
         List<MaleToken> maleTokens = new ArrayList<>();
         List<FemaleToken> femaleTokens = new ArrayList<>();
-
         boolean isInconclusive = false;
 
-        for (String name:names) {
-            NameGender gender = genderizeService.getGender(name);
+        List<NameGender> genders = genderizeService.getGenders(names);
+
+        for (NameGender gender:genders) {
             if(gender.isInconclusive()) {
                 isInconclusive = true;
                 continue;
@@ -92,27 +103,26 @@ public class TokenService {
     }
 
 
+
     private ComplexTokenDTO checkConditionsForSecondOption(List<MaleToken> maleTokens, List<FemaleToken> femaleTokens, boolean isInconclusive) {
         ComplexToken complexToken = new ComplexToken(maleTokens, femaleTokens);
 
         if(isInconclusive) {
             logger.info("Gender for given name is INCONCLUSIVE");
-            return ComplexTokenMapper.INSTANCE.complexTokenToDTO(complexToken);
         }
         if(maleTokens.size()>femaleTokens.size()) {
             logger.info("Gender for given name is MALE");
-            return ComplexTokenMapper.INSTANCE.complexTokenToDTO(complexToken);
         }
 
         if(femaleTokens.size()>maleTokens.size()) {
             logger.info("Gender for given name is FEMALE");
-            return ComplexTokenMapper.INSTANCE.complexTokenToDTO(complexToken);
         }
 
         else {
             logger.info("Gender for given name is INCONCLUSIVE");
-            return ComplexTokenMapper.INSTANCE.complexTokenToDTO(complexToken);
         }
+
+        return ComplexTokenMapper.INSTANCE.complexTokenToDTO(complexToken);
     }
 
 }
